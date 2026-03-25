@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { analyzeQuestionsWithAI } from "@/lib/ai";
-import { computeScoring } from "@/lib/scoring";
 import { supabase } from "@/lib/supabase";
+import { analyzeQuestionsWithAI } from "@/lib/ai";
 
 export async function POST(req: Request) {
   try {
@@ -11,47 +10,59 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await req.json();
-    const { text } = body;
-
-    if (!text || text.trim() === "" || text.length > 5000) {
-      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+    const { text } = await req.json();
+    if (!text || text.length < 5) {
+      return NextResponse.json({ error: "Input text is too short" }, { status: 400 });
     }
 
-    // 1. Run AI analysis
-    const aiOutput = await analyzeQuestionsWithAI(text);
-    
-    // 2. Compute/Validate scores
-    const finalResult = computeScoring(aiOutput);
+    // 1. Run AI/Fallback Pipeline
+    console.log("Analyzing questions...");
+    const aiResponse = await analyzeQuestionsWithAI(text);
+    console.log("Analysis complete.");
 
-    // 3. Save to Supabase
+    // 2. Map Standardized Response to Supabase Schema
+    // Scale bias_score 0-10 to 0-100 for existing UI compatibility if needed
+    const normalizedScore = aiResponse.bias_score * 10;
+    
+    let riskLevel = "Low";
+    if (normalizedScore > 7) riskLevel = "High";
+    else if (normalizedScore > 4) riskLevel = "Medium";
+
     const { data, error } = await supabase
       .from("analysis_reports")
       .insert([
         {
           user_id: userId,
           input_text: text,
-          bias_score: finalResult.overall_bias_score,
-          risk_level: finalResult.risk_level,
-          categories: finalResult.categories,
-          flagged_phrases: finalResult.flagged_phrases,
-          rewritten_output: finalResult.rewritten_questions,
-          diversity_impact: finalResult.diversity_impact,
+          bias_score: normalizedScore,
+          risk_level: riskLevel,
+          categories: { 
+            explanation: aiResponse.explanation,
+            is_fallback: aiResponse.is_fallback || false,
+            // Mock empty categories for structure compatibility
+            gender_bias: 0, age_bias: 0, cultural_bias: 0, tone_bias: 0
+          },
+          flagged_phrases: aiResponse.flagged_issues.map(issue => ({
+            text: "Issue Detected",
+            reason: issue,
+            severity: normalizedScore > 70 ? "high" : "medium"
+          })),
+          rewritten_output: aiResponse.improved_questions,
+          diversity_impact: aiResponse.explanation,
         },
       ])
       .select()
       .single();
 
     if (error) {
-      console.error("Supabase insert error:", error);
-      return NextResponse.json({ error: "Failed to save report" }, { status: 500 });
+      console.error("Supabase insert error details:", error);
+      return NextResponse.json({ error: "Failed to save report: " + error.message }, { status: 500 });
     }
 
-    // Return the saved report, which has the ID and matching fields
     return NextResponse.json({ report: data }, { status: 200 });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Internal Server Error";
     console.error("Analyze API error:", error);
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
+    return NextResponse.json({ error: "Internal processing error occurred." }, { status: 500 });
   }
 }

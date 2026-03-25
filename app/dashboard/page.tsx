@@ -63,6 +63,12 @@ export default function AnalyzePage() {
           </div>
           {report ? (
             <>
+              {report.categories?.is_fallback && (
+                <div className="p-3 bg-amber-50 border border-amber-100 text-amber-700 text-xs rounded-lg flex items-center gap-2 mb-4 animate-pulse">
+                  <Info className="h-4 w-4" />
+                  Limited insights due to AI availability.
+                </div>
+              )}
               <BiasScoreCard score={report.bias_score} />
               <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
@@ -72,7 +78,9 @@ export default function AnalyzePage() {
                 <div className="pt-4 border-t border-slate-100">
                   <h4 className="text-xs font-semibold text-slate-400 uppercase mb-3">Category Breakdown</h4>
                   <div className="space-y-3">
-                    {Object.entries(report.categories || {}).map(([key, value]) => (
+                    {Object.entries(report.categories || {})
+                      .filter(([key]) => !['is_fallback', 'explanation'].includes(key))
+                      .map(([key, value]) => (
                       <div key={key} className="space-y-1.5">
                         <div className="flex justify-between text-xs">
                           <span className="capitalize text-slate-600">{key.replace("_", " ")}</span>
