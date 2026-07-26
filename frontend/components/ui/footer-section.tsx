@@ -101,6 +101,28 @@ export default function FooterSection({
             ))}
           </div>
         </div>
+
+        {/* --- Voidpixsel Agency Credit --- */}
+        <div className="mt-16 pt-8 border-t border-black/[0.06] flex flex-col items-center gap-3">
+          <p className="text-[11px] font-semibold text-black/30 uppercase tracking-[0.25em]">
+            made with 🧡 by
+          </p>
+          <a
+            href="https://www.voidpixsel.in"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="opacity-60 hover:opacity-100 transition-opacity duration-300"
+            aria-label="Visit Voidpixsel — the agency behind Rifair AI"
+          >
+            <Image
+              src="/voidpixsel-logo.png"
+              alt="Voidpixsel"
+              width={140}
+              height={40}
+              className="h-[36px] w-auto object-contain"
+            />
+          </a>
+        </div>
       </div>
     </footer>
   );
