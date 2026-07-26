@@ -6,10 +6,21 @@
  * Falls back to NEXT_PUBLIC_BACKEND_URL for backwards compat.
  */
 
-export const BACKEND_URL =
+function normalizeBackendUrl(url: string): string {
+  if (!url) return url;
+  // If the URL has no protocol, prepend https:// (unless it's localhost)
+  if (!/^https?:\/\//i.test(url)) {
+    const prefix = url.startsWith("localhost") || url.startsWith("127.") ? "http" : "https";
+    return `${prefix}://${url}`;
+  }
+  return url;
+}
+
+export const BACKEND_URL = normalizeBackendUrl(
   process.env.BACKEND_URL ||
   process.env.NEXT_PUBLIC_BACKEND_URL ||
-  "http://localhost:5001";
+  "http://localhost:5001"
+);
 
 /**
  * Validate backend configuration at runtime.
