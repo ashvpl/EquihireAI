@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { BACKEND_URL } from "@/lib/server-config";
+import { BACKEND_URL, validateBackendConfig } from "@/lib/server-config";
 import { getBackendToken, extractBearerToken } from "@/lib/server-auth";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
+  validateBackendConfig();
   try {
     const { userId } = await auth();
     if (!userId) {
@@ -50,12 +51,21 @@ export async function GET(request: Request) {
     return NextResponse.json(data);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    const isFetchFailed = errorMessage.includes("fetch failed") || errorMessage.includes("ECONNREFUSED") || errorMessage.includes("ENOTFOUND");
+    if (isFetchFailed) {
+      console.error(`[Proxy] BACKEND UNREACHABLE at ${BACKEND_URL} — Check BACKEND_URL in Vercel env vars. Error: ${errorMessage}`);
+      return NextResponse.json(
+        { error: "Failed to fetch workflows", details: `Backend unreachable at ${BACKEND_URL}. Check server configuration.` },
+        { status: 500 }
+      );
+    }
     console.error("Workflows GET Proxy error:", errorMessage);
     return NextResponse.json({ error: `Internal Proxy Error: ${errorMessage}` }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
+  validateBackendConfig();
   try {
     const { userId } = await auth();
     if (!userId) {
@@ -102,6 +112,14 @@ export async function POST(request: Request) {
     return NextResponse.json(data);
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
+    const isFetchFailed = errorMessage.includes("fetch failed") || errorMessage.includes("ECONNREFUSED") || errorMessage.includes("ENOTFOUND");
+    if (isFetchFailed) {
+      console.error(`[Proxy] BACKEND UNREACHABLE at ${BACKEND_URL} — Check BACKEND_URL in Vercel env vars. Error: ${errorMessage}`);
+      return NextResponse.json(
+        { error: "Failed to save workflow", details: `Backend unreachable at ${BACKEND_URL}. Check server configuration.` },
+        { status: 500 }
+      );
+    }
     console.error("Workflows POST Proxy error:", errorMessage);
     return NextResponse.json({ error: `Internal Proxy Error: ${errorMessage}` }, { status: 500 });
   }
