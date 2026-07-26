@@ -387,21 +387,21 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-[#F8F8FB] flex flex-col">
 
       {/* ── TOPBAR ────────────────────────────────────────────────────────── */}
-      <header className="h-[88px] bg-white border-b border-[#E7E5EF] flex items-center justify-between px-8 shrink-0">
-        <div className="space-y-1">
-          <h1 className="text-xl font-bold text-[#17141F]">Welcome back, {greetingName}</h1>
-          <p className="text-xs font-semibold text-[#6B6875]">
+      <header className="h-[88px] bg-white border-b border-[#E7E5EF] flex items-center justify-between px-4 md:px-8 shrink-0 gap-4">
+        <div className="space-y-1 min-w-0">
+          <h1 className="text-lg md:text-xl font-bold text-[#17141F] truncate">Welcome back, {greetingName}</h1>
+          <p className="text-[10px] md:text-xs font-semibold text-[#6B6875] truncate">
             {reports.length > 0
               ? `${reports.length} report${reports.length !== 1 ? "s" : ""} · ${kits.length} kit${kits.length !== 1 ? "s" : ""} · ${evaluations.length} evaluation${evaluations.length !== 1 ? "s" : ""}`
               : "Build structured hiring workflows with AI"}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3 shrink-0">
           {/* New Workflow */}
           <Link href="/dashboard/workflows/new">
-            <button className="h-11 px-5 bg-[#17141F] text-white hover:bg-black/90 font-bold rounded-xl flex items-center gap-2 transition-colors shadow-sm">
+            <button className="h-10 md:h-11 px-3 md:px-5 bg-[#17141F] text-white hover:bg-black/90 font-bold rounded-xl flex items-center gap-2 transition-colors shadow-sm text-sm">
               <Plus className="w-4 h-4" />
-              <span>New Workflow</span>
+              <span className="hidden sm:inline">New Workflow</span>
             </button>
           </Link>
 
@@ -438,17 +438,17 @@ export default function DashboardPage() {
       </header>
 
       {/* ── MAIN CONTENT GRID ─────────────────────────────────────────────── */}
-      <main className="flex-1 grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6 p-8 overflow-y-auto">
+      <main className="flex-1 grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4 md:gap-6 p-4 md:p-8 overflow-y-auto w-full max-w-full">
 
         {/* LEFT COLUMN */}
         <div className="space-y-6 min-w-0">
 
           {/* CARD 1: User Activity Overview Graph */}
-          <div className="bg-white border border-[#E7E5EF] rounded-[20px] p-6 space-y-6 shadow-sm">
-            <div className="flex justify-between items-start gap-4">
-              <div className="space-y-1">
-                <h2 className="text-lg font-bold text-[#17141F]">User Activity Overview</h2>
-                <p className="text-xs font-semibold text-[#6B6875]">Real-time workflows, interview kits, and candidate evaluations tracker</p>
+          <div className="bg-white border border-[#E7E5EF] rounded-[20px] p-4 md:p-6 space-y-6 shadow-sm min-w-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+              <div className="space-y-1 min-w-0 w-full">
+                <h2 className="text-lg font-bold text-[#17141F] truncate">User Activity Overview</h2>
+                <p className="text-[11px] md:text-xs font-semibold text-[#6B6875] truncate">Real-time workflows, interview kits, and candidate evaluations tracker</p>
               </div>
               <div className="flex items-center gap-2">
                 <Link href="/analyze">
@@ -520,11 +520,11 @@ export default function DashboardPage() {
           </div>
 
           {/* CARD 2: Candidate Evaluation Scorecards */}
-          <div className="bg-white border border-[#E7E5EF] rounded-[20px] p-6 space-y-6 shadow-sm">
-            <div className="flex justify-between items-center gap-4 flex-wrap">
-              <div className="space-y-1">
-                <h2 className="text-lg font-bold text-[#17141F]">Candidate Evaluation Scorecards</h2>
-                <p className="text-xs font-semibold text-[#6B6875]">
+          <div className="bg-white border border-[#E7E5EF] rounded-[20px] p-4 md:p-6 space-y-6 shadow-sm min-w-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 flex-wrap">
+              <div className="space-y-1 min-w-0 w-full sm:w-auto flex-1">
+                <h2 className="text-lg font-bold text-[#17141F] truncate">Candidate Evaluation Scorecards</h2>
+                <p className="text-[11px] md:text-xs font-semibold text-[#6B6875] break-words whitespace-normal">
                   {evaluations.length > 0
                     ? `${evaluations.length} evaluation${evaluations.length !== 1 ? "s" : ""} completed — structured, bias-aware candidate scoring.`
                     : "Structured evaluation with scorecards and human-in-the-loop decision support."}

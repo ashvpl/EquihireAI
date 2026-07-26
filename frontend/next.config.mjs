@@ -1,6 +1,9 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
+process.env.NO_PROXY = "127.0.0.1,localhost,::1";
+process.env.no_proxy = "127.0.0.1,localhost,::1";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 

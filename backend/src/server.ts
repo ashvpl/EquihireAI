@@ -1,6 +1,13 @@
 // ─── Load .env FIRST — must be before any import that reads process.env ────────────
 import 'dotenv/config';
 
+import { ProxyAgent, setGlobalDispatcher } from 'undici';
+if (process.env.http_proxy || process.env.HTTP_PROXY) {
+  const proxyUrl = (process.env.http_proxy || process.env.HTTP_PROXY) as string;
+  setGlobalDispatcher(new ProxyAgent(proxyUrl));
+  console.log(`[BOOT] Configured global undici ProxyAgent: ${proxyUrl}`);
+}
+
 import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
@@ -119,6 +126,6 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 const PORT = parseInt(env.PORT, 10) || 5001;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Rifair backend running on port ${PORT} [${env.NODE_ENV}]`);
 });
